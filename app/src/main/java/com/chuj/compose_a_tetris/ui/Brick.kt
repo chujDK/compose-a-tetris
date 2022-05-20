@@ -1,5 +1,6 @@
 package com.chuj.compose_a_tetris.ui
 
+import android.support.v4.os.IResultReceiver
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -54,7 +55,23 @@ private fun DrawScope.drawBrick(
     )
 }
 
-private fun DrawScope.drawGrid(
+fun DrawScope.drawBrick(
+    brickSize: Float,
+    brick : Brick
+) {
+    drawBrick(brickSize, brick.offset, brick.color)
+}
+
+fun DrawScope.drawBricks(
+    brickSize: Float,
+    bricks: List<Brick>
+) {
+    bricks.forEach {
+        drawBrick(brickSize, it)
+    }
+}
+
+fun DrawScope.drawGrid(
     blockSize : Float,
     gridSize : Pair<Int, Int>
 ) {
@@ -69,7 +86,7 @@ private fun DrawScope.drawGrid(
     }
 }
 
-private fun DrawScope.drawSpirit(spirit: Spirit, brickSize: Float, gridSize: Pair<Int, Int>) {
+fun DrawScope.drawSpirit(spirit: Spirit, brickSize: Float, gridSize: Pair<Int, Int>) {
     clipRect(0f, 0f, gridSize.first * brickSize, gridSize.second * brickSize) {
         spirit.location.forEach {
             drawBrick(
@@ -84,10 +101,27 @@ private fun DrawScope.drawSpirit(spirit: Spirit, brickSize: Float, gridSize: Pai
 data class Spirit(
     val shape : List<Offset> = emptyList(),
     val offset: Offset = Offset(0f, 0f),
-    val color : Color
+    val color : Color = BrickGrid
 ) {
     val location : List<Offset> = shape.map { it + offset }
+
+    companion object {
+        val Empty = Spirit()
+    }
+
+    fun rotate() : Spirit {
+        val newShape = shape.toMutableList()
+        for (i in shape.indices) {
+            newShape[i] = Offset(shape[i].y, -shape[i].x)
+        }
+        return copy(shape = newShape)
+    }
 }
+
+data class Brick(
+    val offset: Offset,
+    val color: Color
+)
 
 @Composable
 fun BrickGrid(blockSize: Float, gridSize: Pair<Int, Int>) {
@@ -97,11 +131,11 @@ fun BrickGrid(blockSize: Float, gridSize: Pair<Int, Int>) {
 }
 
 @Composable
-fun DrawSpiritTest(spirit: Spirit) {
+fun DrawSpiritTest(spirit: Spirit, brickSize: Float) {
     Canvas(modifier = Modifier.fillMaxSize()) {
         drawSpirit(
             spirit,
-            30f,
+            brickSize,
             Pair(12, 24)
         )
     }
@@ -109,11 +143,9 @@ fun DrawSpiritTest(spirit: Spirit) {
 
 val SpiritType = listOf(
     listOf(Offset(1f, -1f), Offset(1f, 0f), Offset(0f, 0f), Offset(0f, 1f)),//Z
-    listOf(Offset(0f, -1f), Offset(0f, 0f), Offset(1f, 0f), Offset(1f, 1f)),//S
     listOf(Offset(0f, -1f), Offset(0f, 0f), Offset(0f, 1f), Offset(0f, 2f)),//I
     listOf(Offset(0f, 1f), Offset(0f, 0f), Offset(0f, -1f), Offset(1f, 0f)),//T
     listOf(Offset(1f, 0f), Offset(0f, 0f), Offset(1f, -1f), Offset(0f, -1f)),//O
-    listOf(Offset(0f, -1f), Offset(1f, -1f), Offset(1f, 0f), Offset(1f, 1f)),//L
     listOf(Offset(1f, -1f), Offset(0f, -1f), Offset(0f, 0f), Offset(0f, 1f))//J
 )
 
@@ -122,7 +154,9 @@ val SpiritColor = listOf(
     Color.Red,
     Color.Yellow,
     Color.Green,
-    Color.Cyan,
     Color.Magenta,
-    Color.Black
 )
+
+val SpiritSum = SpiritType.size
+
+val DefaultSpiritStartOffset = Offset(GridWidth / 2f - 1, 0f)
