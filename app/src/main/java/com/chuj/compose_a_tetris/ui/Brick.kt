@@ -146,7 +146,12 @@ val SpiritType = listOf(
     listOf(Offset(0f, -1f), Offset(0f, 0f), Offset(0f, 1f), Offset(0f, 2f)),//I
     listOf(Offset(0f, 1f), Offset(0f, 0f), Offset(0f, -1f), Offset(1f, 0f)),//T
     listOf(Offset(1f, 0f), Offset(0f, 0f), Offset(1f, -1f), Offset(0f, -1f)),//O
-    listOf(Offset(1f, -1f), Offset(0f, -1f), Offset(0f, 0f), Offset(0f, 1f))//J
+    listOf(Offset(1f, -1f), Offset(0f, -1f), Offset(0f, 0f), Offset(0f, 1f)),//J
+
+    // here starts the unwanted
+    listOf(Offset(0f, -1f), Offset(1f, -1f), Offset(1f, 0f), Offset(1f, 1f)),//L
+    listOf(Offset(0f, -1f), Offset(0f, 0f), Offset(1f, 0f), Offset(1f, 1f)),//S
+
 )
 
 val SpiritColor = listOf(
@@ -155,8 +160,13 @@ val SpiritColor = listOf(
     Color.Yellow,
     Color.Green,
     Color.Magenta,
+    Color.Cyan,
+    Color.Black
 )
 
+// NOTE: here we hard coded the `SpiritSum' to 5. So there will be only the five type of spirit
+// however, simply change it to `SpiritType.size` can enable all the Spirits
+// val SpiritSum = 5
 val SpiritSum = SpiritType.size
 
 val DefaultSpiritStartOffset = Offset(GridWidth / 2f - 1, 0f)

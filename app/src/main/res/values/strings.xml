@@ -7,8 +7,11 @@
     <string name="button_rotate_str">Rotate</string>
     <string name="button_pause_str">Pause/Resume</string>
     <string name="button_reset_str">Start/Reset</string>
-    <string name="button_exit_str">Exit</string>
+    <string name="button_exit_str">Main Menu</string>
     <string name="next_spirit_preview_hint">Next\u2193</string>
     <string name="score_hint_str">Current Points\u2193</string>
     <string name="lines_cleared_str">Lines Cleared\u2193</string>
+    <string name="main_activity_app_name">Tetris</string>
+    <string name="start_game_button_str">Start New Game</string>
+    <string name="show_scores_button_str">High Scores</string>
 </resources>

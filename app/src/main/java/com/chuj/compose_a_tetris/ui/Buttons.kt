@@ -71,13 +71,13 @@ fun DirectionButtonAssembly(
 ) {
 
     val buttonText = @Composable {
-            modifier : Modifier,
+            textModifier : Modifier,
             text : String ->
         Text(
             text = text,
             color = Color.White,
             fontSize = 25.sp,
-            modifier = modifier
+            modifier = textModifier
         )
     }
 

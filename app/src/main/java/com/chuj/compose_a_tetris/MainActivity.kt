@@ -1,14 +1,25 @@
 package com.chuj.compose_a_tetris
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.chuj.compose_a_tetris.logic.Action
 import com.chuj.compose_a_tetris.logic.Direction
@@ -24,40 +35,46 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             Compose_a_tetrisTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
+                Surface (
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val viewModel = viewModel<GameViewModel>()
-                    val viewState = viewModel.viewState.value
-
-                    // make the block to fall
-                    LaunchedEffect(key1 = Unit) {
-                        while (true) {
-                            delay(
-                                450 - min(viewState.linesCleared.toLong() * 10, 200))
-                            viewModel.dispatch(Action.Tick)
-                        }
-                    }
-
-                    GameScreen(clickable = combineClickable (
-                        onMove = {direction : Direction ->
-                            if(direction == Direction.Up) viewModel.dispatch(Action.DropImm)
-                            else viewModel.dispatch(Action.Move(direction))
-                        },
-                        onReset = {
-                            viewModel.dispatch(Action.Reset)
-                        },
-                        onRotate = {
-                            viewModel.dispatch(Action.Rotate)
-                        },
-                        onPause = {
-                            viewModel.dispatch(Action.Pause)
-                        }
-                    ))
+                    simpleMainScreen()
                 }
             }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun simpleMainScreen() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        val context = LocalContext.current
+        Text(
+            text = stringResource(id = R.string.main_activity_app_name),
+            fontSize = 20.sp
+        )
+
+        Button(
+            onClick = {
+                val intent = Intent(context, GameActivity::class.java)
+                context.startActivity(intent)
+            }
+        ) {
+            Text(text = stringResource(id = R.string.start_game_button_str))
+        }
+        
+        Button(
+            onClick = {
+                
+            }
+        ) {
+            Text(text = stringResource(id = R.string.show_scores_button_str))
         }
     }
 }

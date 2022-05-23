@@ -1,24 +1,29 @@
 package com.chuj.compose_a_tetris.ui
 
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.chuj.compose_a_tetris.logic.Clickable
-import com.chuj.compose_a_tetris.logic.GameViewModel
-import com.chuj.compose_a_tetris.logic.combineClickable
+import com.chuj.compose_a_tetris.logic.*
 import java.lang.Float.min
 
 @Composable
@@ -100,11 +105,14 @@ fun DisplayStrAndIntCenterAligned(
 /*
     <string name="score_hint_str">Current Points\u2193</string>
     <string name="lines_cleared_str">Lines Cleared\u2193</string>
+    <string name="game_over_alert_title">You Lost!</string>
     don't know why R.string has no reference
  */
 
 const val SCORE_HINT_STR = "Current Points\u2193"
 const val LINES_CLEARED_STR= "Lines Cleared\u2193"
+const val GAME_OVER_ALERT_TITLE = "You Lost!"
+const val INPUT_NAME_HINT = "Leave your name:"
 
 @Composable
 fun DisplayScore(modifier: Modifier = Modifier) {
@@ -205,5 +213,64 @@ fun SpiritPreview(brickSize : Float) {
             SpiritColor[i]
         )
         DrawSpiritTest(spirit = spirit, brickSize = brickSize)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GameOverAlert() {
+    val context = LocalContext.current
+    val openDialog = remember { mutableStateOf(true) }
+    val viewModel = viewModel<GameViewModel>()
+    val viewState = viewModel.viewState.value
+    val userName = remember { mutableStateOf("") }
+    val dbHelper = ScoreDBHelper(context)
+
+    if (openDialog.value) {
+        AlertDialog(
+            onDismissRequest = {
+                openDialog.value = false
+            },
+            title = {
+                Text(text = GAME_OVER_ALERT_TITLE)
+            },
+            text = {
+                Column() {
+                    Text(text = INPUT_NAME_HINT)
+                    TextField(
+                        value = userName.value,
+                        onValueChange = {
+                            userName.value = it
+                        }
+                    )
+                }
+            },
+            confirmButton = {
+                // TODO:
+                // do the sql operation here
+                TextButton(onClick = {
+                    openDialog.value = false
+                    Toast.makeText(context, "saving..", Toast.LENGTH_SHORT).show()
+                    val record = ScoreContract.Record(
+                        viewState.score,
+                        System.currentTimeMillis() / 1000,
+                        userName.value
+                    )
+                    dbHelper.insertScore(record)
+                }) {
+                    Text("Save")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    openDialog.value = false
+                }
+                ) {
+                    Text("Don't Save")
+                }
+            }
+        )
+    } else {
+        viewModel.reset()
     }
 }

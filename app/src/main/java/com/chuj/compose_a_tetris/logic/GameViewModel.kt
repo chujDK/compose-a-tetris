@@ -1,6 +1,5 @@
 package com.chuj.compose_a_tetris.logic
 
-import android.view.View
 import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
@@ -46,7 +45,7 @@ class GameViewModel : ViewModel() {
         return false
     }
 
-    private fun canSpiritExitOnGrid(spirit: Spirit) : Boolean {
+    private fun canSpiritExistOnGrid(spirit: Spirit) : Boolean {
         spirit.location.forEach {
             if (!locationInGrid(it)) return false
             if (locationInBricks(it)) {
@@ -59,7 +58,7 @@ class GameViewModel : ViewModel() {
     private fun canApplyMove(direction: Direction, spirit: Spirit) : Boolean {
         val offset = directionToOffset(direction = direction)
         val spiritMoved = spirit.copy(offset = spirit.offset + offset)
-        return canSpiritExitOnGrid(spiritMoved)
+        return canSpiritExistOnGrid(spiritMoved)
     }
 
     private fun applyMove(direction: Direction, spirit: Spirit) : Spirit {
@@ -79,7 +78,7 @@ class GameViewModel : ViewModel() {
 
     private fun maybeRotate(spirit: Spirit) : Spirit {
         val spiritRotated = spirit.rotate()
-        return if (canSpiritExitOnGrid(spiritRotated)) {
+        return if (canSpiritExistOnGrid(spiritRotated)) {
             spiritRotated
         } else {
             spirit
@@ -186,14 +185,22 @@ class GameViewModel : ViewModel() {
         }
     }
 
+    fun reset() {
+        _viewState.value = ViewState()
+    }
+
     private fun reduce(state: ViewState, action: Action): ViewState =
         when(action) {
             Action.Reset -> {
+                if (state.isGameOver) {
+                    state
+                } else {
                 ViewState().copy(
                     gameStatus = GameStatus.Running,
                     spirit = genRandomSpirit(),
                     nextSpirit = genRandomSpirit(),
                 )
+                }
             }
 
             is Action.Move -> run {
