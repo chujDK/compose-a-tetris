@@ -1,9 +1,17 @@
 package com.chuj.compose_a_tetris.logic
 
+import android.media.AudioAttributes
+import android.media.MediaPlayer
 import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.layout.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.chuj.compose_a_tetris.R
 import com.chuj.compose_a_tetris.ui.*
+import kotlinx.coroutines.*
 
 class GameViewModel : ViewModel() {
     private val _viewState : MutableState<ViewState> = mutableStateOf(ViewState())
@@ -88,8 +96,24 @@ class GameViewModel : ViewModel() {
     private fun maybeGameOver(state: ViewState) : ViewState {
         state.spirit.location.forEach {
             if (it.y <= 0) {
-                // set the game over
-                return state.copy(gameStatus = GameStatus.GameOver)
+                viewModelScope.launch {
+                    (0 until viewState.value.grid.second).reversed().forEach { y ->
+                        delay(120)
+                        // A. create black bricks
+                        val brickLine = mutableListOf<Brick>()
+                        (0 until viewState.value.grid.first).forEach { x ->
+                            brickLine.add(Brick(Offset(x.toFloat(), y.toFloat()), Color.Black))
+                        }
+                        val bricks = _viewState.value.bricks.toMutableList()
+                        bricks.addAll(brickLine)
+
+                        _viewState.value = _viewState.value.copy(
+                            bricks = bricks
+                        )
+                    }
+                    _viewState.value = _viewState.value.copy(gameStatus = GameStatus.GameOver)
+                }
+                return state.copy(gameStatus = GameStatus.OnGameOverAnimation)
             }
         }
         return state
@@ -163,7 +187,7 @@ class GameViewModel : ViewModel() {
 
             // A. first check if the spirit is out of grid
             var newState = maybeGameOver(state)
-            if (newState.gameStatus == GameStatus.GameOver) return newState
+            if (newState.isGameOver || newState.isOnGameOverAnimation) return newState
 
             // B. add the spirit to the bricks
             val newBricks = state.bricks.toMutableList()
@@ -178,7 +202,7 @@ class GameViewModel : ViewModel() {
                 bricks = newBricks
             )
 
-            // C. try a line click
+            // C. try a line clean
             newState = maybeCleanLine(newState)
 
             newState
@@ -192,7 +216,7 @@ class GameViewModel : ViewModel() {
     private fun reduce(state: ViewState, action: Action): ViewState =
         when(action) {
             Action.Reset -> {
-                if (state.isGameOver) {
+                if (state.isGameOver || state.isOnGameOverAnimation) {
                     state
                 } else {
                 ViewState().copy(
@@ -230,7 +254,6 @@ class GameViewModel : ViewModel() {
                 if (state.isRunning) {
                     maybeDropOrJoinCurrentSpiritToBricks(state)
                 } else if (state.isGameOver){
-                    // TODO: add the game over logic
                     state
                 } else {
                     state

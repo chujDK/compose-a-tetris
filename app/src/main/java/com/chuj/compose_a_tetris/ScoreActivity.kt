@@ -27,6 +27,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.chuj.compose_a_tetris.logic.ScoreContract
 import com.chuj.compose_a_tetris.logic.ScoreDBHelper
 import com.chuj.compose_a_tetris.ui.theme.Compose_a_tetrisTheme
+import com.google.android.material.composethemeadapter3.createMdc3Theme
 import java.text.SimpleDateFormat
 
 class ScoreSearchViewModel() : ViewModel() {
@@ -261,7 +262,7 @@ fun SearchAlert() {
                                 text = SimpleDateFormat("MM/dd HH:mm:ss")
                                     .format(searchStartTime)
                             )
-                            Button(onClick = { /*TODO*/}) {
+                            Button(onClick = { /*TODO*/ }) {
                                 Text("set start time")
                             }
                         }

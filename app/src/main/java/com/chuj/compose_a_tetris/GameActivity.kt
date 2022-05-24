@@ -1,6 +1,7 @@
 package com.chuj.compose_a_tetris
 
 import android.content.Intent
+import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -44,11 +45,17 @@ class GameActivity : ComponentActivity() {
 
                     // make the block to fall
                     LaunchedEffect(key1 = Unit) {
+                        var musicPlaying = false
                         while (true) {
                             delay(
                                 450 - min(viewState.linesCleared.toLong() * 10, 250)
                             )
                             viewModel.dispatch(Action.Tick)
+                            if (!musicPlaying && viewModel.viewState.value.isOnGameOverAnimation) {
+                                musicPlaying = true
+                                val lostMusicPlayer = MediaPlayer.create(context, R.raw.on_lost_animation_music)
+                                lostMusicPlayer.start()
+                            }
                         }
                     }
 

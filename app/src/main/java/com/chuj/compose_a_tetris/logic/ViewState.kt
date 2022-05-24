@@ -19,6 +19,7 @@ enum class GameStatus {
     Running,
     Paused,
     GameOver,
+    OnGameOverAnimation,
 }
 
 data class Clickable constructor(
@@ -67,4 +68,7 @@ data class ViewState(
 
     val isGameOver
         get() = gameStatus == GameStatus.GameOver
+
+    val isOnGameOverAnimation
+        get() = gameStatus == GameStatus.OnGameOverAnimation
 }
