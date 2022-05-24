@@ -11,5 +11,5 @@ object ScoreContract {
         const val COLUMN_SCORE = "score"
     }
 
-    data class Record(val score : Int, val currentTimeSecond : Long, val name : String)
+    data class Record(val score : Int, val currentTimeMillis : Long, val name : String)
 }

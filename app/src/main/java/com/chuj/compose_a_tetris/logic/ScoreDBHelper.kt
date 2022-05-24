@@ -32,7 +32,7 @@ class ScoreDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
         val db = writableDatabase
         val values = ContentValues().apply {
             put(ScoreContract.ScoreEntry.COLUMN_SCORE, record.score)
-            put(ScoreContract.ScoreEntry.COLUMN_TIME, record.currentTimeSecond)
+            put(ScoreContract.ScoreEntry.COLUMN_TIME, record.currentTimeMillis)
             put(ScoreContract.ScoreEntry.COLUMN_NAME, record.name)
         }
         db.insert(ScoreContract.ScoreEntry.TABLE_NAME, null, values)
@@ -54,10 +54,10 @@ class ScoreDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
             val records = mutableListOf<ScoreContract.Record>()
             with(cursor) {
                 while (moveToNext()) {
-                    val record = com.chuj.compose_a_tetris.logic.ScoreContract.Record(
-                        getInt(getColumnIndexOrThrow(com.chuj.compose_a_tetris.logic.ScoreContract.ScoreEntry.COLUMN_SCORE)),
-                        getLong(getColumnIndexOrThrow(com.chuj.compose_a_tetris.logic.ScoreContract.ScoreEntry.COLUMN_TIME)),
-                        getString(getColumnIndexOrThrow(com.chuj.compose_a_tetris.logic.ScoreContract.ScoreEntry.COLUMN_NAME))
+                    val record = ScoreContract.Record(
+                        getInt(getColumnIndexOrThrow(ScoreContract.ScoreEntry.COLUMN_SCORE)),
+                        getLong(getColumnIndexOrThrow(ScoreContract.ScoreEntry.COLUMN_TIME)),
+                        getString(getColumnIndexOrThrow(ScoreContract.ScoreEntry.COLUMN_NAME))
                     )
                     records.add(record)
                 }
@@ -70,7 +70,7 @@ class ScoreDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
     }
 
     fun searchScoreByName(name : String) : MutableList<ScoreContract.Record> {
-        val selection = "${ScoreContract.ScoreEntry.COLUMN_NAME} = $name"
+        val selection = "${ScoreContract.ScoreEntry.COLUMN_NAME} = \"$name\""
 
         return rawSearch(selection)
     }
@@ -80,6 +80,29 @@ class ScoreDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
                 "${ScoreContract.ScoreEntry.COLUMN_TIME} >= $start"
 
         return rawSearch(selection)
+    }
+
+    fun selectAll() : List<ScoreContract.Record> {
+        val selection = "SELECT * FROM ${ScoreContract.ScoreEntry.TABLE_NAME}"
+        val db = writableDatabase
+        try {
+            val cursor = db.rawQuery(selection, null)
+            val records = mutableListOf<ScoreContract.Record>()
+            with(cursor) {
+                while (moveToNext()) {
+                    val record = ScoreContract.Record(
+                        getInt(getColumnIndexOrThrow(ScoreContract.ScoreEntry.COLUMN_SCORE)),
+                        getLong(getColumnIndexOrThrow(ScoreContract.ScoreEntry.COLUMN_TIME)),
+                        getString(getColumnIndexOrThrow(ScoreContract.ScoreEntry.COLUMN_NAME))
+                    )
+                    records.add(record)
+                }
+            }
+            return records
+        } catch (e : SQLiteException) {
+            db.close()
+            return mutableListOf()
+        }
     }
 
     companion object {

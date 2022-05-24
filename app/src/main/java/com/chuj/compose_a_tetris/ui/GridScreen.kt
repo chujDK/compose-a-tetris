@@ -140,7 +140,7 @@ fun DisplayLinesCleared(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun GameScreen(clickable: Clickable = combineClickable(), modifier: Modifier = Modifier) {
+fun GameScreen(modifier: Modifier = Modifier, clickable: Clickable = combineClickable()) {
     Box(modifier = modifier
         .fillMaxSize()
         .padding(10.dp)
@@ -235,25 +235,24 @@ fun GameOverAlert() {
                 Text(text = GAME_OVER_ALERT_TITLE)
             },
             text = {
-                Column() {
+                Column {
                     Text(text = INPUT_NAME_HINT)
                     TextField(
                         value = userName.value,
                         onValueChange = {
                             userName.value = it
-                        }
+                        },
+                        maxLines = 1
                     )
                 }
             },
             confirmButton = {
-                // TODO:
-                // do the sql operation here
                 TextButton(onClick = {
                     openDialog.value = false
                     Toast.makeText(context, "saving..", Toast.LENGTH_SHORT).show()
                     val record = ScoreContract.Record(
                         viewState.score,
-                        System.currentTimeMillis() / 1000,
+                        System.currentTimeMillis(),
                         userName.value
                     )
                     dbHelper.insertScore(record)

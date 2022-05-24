@@ -71,7 +71,8 @@ fun simpleMainScreen() {
         
         Button(
             onClick = {
-                
+                val intent = Intent(context, ScoreActivity::class.java)
+                context.startActivity(intent)
             }
         ) {
             Text(text = stringResource(id = R.string.show_scores_button_str))
