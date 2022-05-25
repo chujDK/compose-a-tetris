@@ -66,7 +66,7 @@ fun BasicButton(
 @Composable
 fun DirectionButtonAssembly(
     directionButtonSize : Dp,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     onMove: (Direction) -> Unit = {}
 ) {
 
@@ -128,6 +128,14 @@ fun RotateButton(rotateButtonSize : Dp, modifier: Modifier, onRotate: () -> Unit
             modifier = it
         )
     }
+}
+
+@Preview
+@Composable
+fun DirectionButtonAssemblyPreview() {
+    DirectionButtonAssembly(
+        directionButtonSize = DirectionButtonSize,
+    )
 }
 
 @Composable

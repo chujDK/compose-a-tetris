@@ -15,7 +15,7 @@ import kotlinx.coroutines.*
 
 class GameViewModel : ViewModel() {
     private val _viewState : MutableState<ViewState> = mutableStateOf(ViewState())
-    val viewState : State<ViewState> = _viewState;
+    val viewState : State<ViewState> = _viewState
 
     fun dispatch(action: Action) {
         _viewState.value = reduce(viewState.value, action)
