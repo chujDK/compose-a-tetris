@@ -43,11 +43,11 @@ fun GridScreen(modifier: Modifier = Modifier) {
 
 
             drawGrid(blockSize = brickSize, gridSize = viewState.grid)
-            drawBricks(brickSize = brickSize, bricks = viewState.bricks)
             drawSpirit(
                 spirit = viewState.spirit,
                 brickSize = brickSize,
                 gridSize = viewState.grid)
+            drawBricks(brickSize = brickSize, bricks = viewState.bricks)
         }
     }
 }

@@ -16,4 +16,5 @@
     <string name="show_scores_button_str">High Scores</string>
     <string name="score_activity_title">Scores</string>
     <string name="search_record_button_str">Search Scores</string>
+    <string name="pick_time_button_str">Pick Time</string>
 </resources>

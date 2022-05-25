@@ -1,9 +1,11 @@
 package com.chuj.compose_a_tetris
 
 import android.annotation.SuppressLint
+import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.border
@@ -28,9 +30,12 @@ import com.chuj.compose_a_tetris.logic.ScoreContract
 import com.chuj.compose_a_tetris.logic.ScoreDBHelper
 import com.chuj.compose_a_tetris.ui.theme.Compose_a_tetrisTheme
 import com.google.android.material.composethemeadapter3.createMdc3Theme
+import com.vanpra.composematerialdialogs.MaterialDialog
+import com.vanpra.composematerialdialogs.datetime.date.datepicker
+import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import java.text.SimpleDateFormat
 
-class ScoreSearchViewModel() : ViewModel() {
+class ScoreSearchViewModel : ViewModel() {
     private val _viewState = mutableStateOf(ScoreSearchViewState())
     val viewState : State<ScoreSearchViewState> = _viewState
 
@@ -47,7 +52,6 @@ class ScoreSearchViewModel() : ViewModel() {
             records = records,
             recordsWasSet = true,
         ))
-        println("[+] records reduces, sum of ${viewState.value.records.size} now")
     }
 
     fun reduceSearchTime(
@@ -109,8 +113,6 @@ fun ScoreList(modifier: Modifier = Modifier) {
 
     records.clear()
     records.addAll(viewState.value.records)
-//    println("[+] updated records, ${records.size} total")
-//    println("[!] records of viewState: ${viewState.value.records.size} total")
 
     LazyColumn(
         modifier = modifier,
@@ -218,6 +220,24 @@ fun SearchAlert() {
     var searchName by remember { mutableStateOf("") }
     var searchStartTime by remember { mutableStateOf(0L) }
     var searchEndTime by remember { mutableStateOf(0L) }
+    var startTimeInput = remember { mutableStateOf("") }
+    val timePickerDialog = TimePickerDialog(
+        context,
+        {_, hour : Int, minute : Int ->
+            startTimeInput.value = "$hour:$minute"
+        }, 0, 0, false
+    )
+    val datePickingDialogState = rememberMaterialDialogState()
+    MaterialDialog(
+        dialogState = datePickingDialogState,
+        buttons = {
+            positiveButton("OK")
+            negativeButton("Cancel")
+        }
+    ) {
+        datepicker { date ->
+        }
+    }
 
     if (viewState.value.onSearchAlert) {
         when(searchType) {
@@ -262,10 +282,14 @@ fun SearchAlert() {
                                 text = SimpleDateFormat("MM/dd HH:mm:ss")
                                     .format(searchStartTime)
                             )
-                            Button(onClick = { /*TODO*/ }) {
+                            Button(onClick = {
+                                // start a time picking
+                                timePickerDialog.show()
+                            }) {
                                 Text("set start time")
                             }
                         }
+
                         Column(
                             verticalArrangement = Arrangement.SpaceAround,
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -309,7 +333,6 @@ fun SearchAlert() {
                 confirmButton = {
                     TextButton(onClick = {
                         val records = dbHelper.searchScoreByName(name = searchName)
-                        println("[!] searched records, ${records.size} total")
                         viewModel.reduceRecords(records = records)
                         viewModel.reduceSearchAlert(false)
                     }) {

@@ -47,6 +47,8 @@ android {
 
 dependencies {
 
+    implementation "io.github.vanpra.compose-material-dialogs:datetime:0.7.1"
+    implementation "com.google.android.material:material:1.6.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1"
     implementation "com.google.android.material:compose-theme-adapter:1.1.10"
     implementation "com.google.android.material:compose-theme-adapter-3:1.0.10"
