@@ -1,6 +1,7 @@
 package com.chuj.compose_a_tetris
 
 import android.annotation.SuppressLint
+import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,7 +22,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.textInputServiceFactory
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,6 +38,7 @@ import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import java.text.SimpleDateFormat
+import kotlin.jvm.internal.Intrinsics
 
 class ScoreSearchViewModel : ViewModel() {
     private val _viewState = mutableStateOf(ScoreSearchViewState())
@@ -208,6 +213,12 @@ enum class SearchType {
     OnDeciding,
 }
 
+enum class TimeSetState {
+    OnSetStartTime,
+    OnSetEndTime,
+    OnInit,
+}
+
 @Preview(showBackground = true)
 @Composable
 @SuppressLint("SimpleDateFormat")
@@ -218,25 +229,39 @@ fun SearchAlert() {
     val viewState = viewModel.viewState
     val dbHelper = ScoreDBHelper(context)
     var searchName by remember { mutableStateOf("") }
-    var searchStartTime by remember { mutableStateOf(0L) }
-    var searchEndTime by remember { mutableStateOf(0L) }
-    var startTimeInput = remember { mutableStateOf("") }
+    var timeSetState by remember { mutableStateOf(TimeSetState.OnInit) }
+    var timeInput by remember { mutableStateOf("00:00") }
+    var dateInput by remember { mutableStateOf("2000/01/01") }
+    val currentStartYear = dateInput.subSequence(0, 4).toString().toInt()
+    val currentStartMonth = dateInput.subSequence(5, 7).toString().toInt()
+    val currentStartDay = dateInput.subSequence(8, 10).toString().toInt()
+    val currentStartHour = timeInput.subSequence(0, 2).toString().toInt()
+    val currentStartMinute = timeInput.subSequence(3, 5).toString().toInt()
     val timePickerDialog = TimePickerDialog(
         context,
         {_, hour : Int, minute : Int ->
-            startTimeInput.value = "$hour:$minute"
-        }, 0, 0, false
+            timeInput = "${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}"
+        }, currentStartHour, currentStartMinute, false
     )
-    val datePickingDialogState = rememberMaterialDialogState()
-    MaterialDialog(
-        dialogState = datePickingDialogState,
-        buttons = {
-            positiveButton("OK")
-            negativeButton("Cancel")
-        }
-    ) {
-        datepicker { date ->
-        }
+    val datePickerDialog = DatePickerDialog(
+        context,
+        {_, year : Int, month : Int, dayOfMonth : Int ->
+            dateInput = "$year/${(month + 1).toString().padStart(2, '0')}/${dayOfMonth.toString().padStart(2, '0')}"
+        }, currentStartYear, currentStartMonth, currentStartDay
+    )
+
+    var searchStartTime by remember { mutableStateOf(0L) }
+    var searchEndTime by remember { mutableStateOf(0L) }
+
+    val timeToParse = "$dateInput $timeInput"
+    println("[!] $timeToParse")
+    if (timeSetState == TimeSetState.OnSetStartTime || timeSetState == TimeSetState.OnInit) {
+        searchStartTime = SimpleDateFormat("yyyy/MM/dd HH:mm").parse(timeToParse).time
+        println("[+] start time set $searchStartTime")
+    }
+    if (timeSetState == TimeSetState.OnSetEndTime || timeSetState == TimeSetState.OnInit) {
+        searchEndTime = SimpleDateFormat("yyyy/MM/dd HH:mm").parse(timeToParse).time
+        println("[+] end time set $searchStartTime")
     }
 
     if (viewState.value.onSearchAlert) {
@@ -274,39 +299,49 @@ fun SearchAlert() {
                         horizontalArrangement = Arrangement.SpaceAround,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column(
-                            verticalArrangement = Arrangement.SpaceAround,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = SimpleDateFormat("MM/dd HH:mm:ss")
-                                    .format(searchStartTime)
-                            )
-                            Button(onClick = {
-                                // start a time picking
+                        ClickableText(
+                            text = AnnotatedString(SimpleDateFormat("yy/MM/dd ")
+                                .format(searchStartTime)),
+                            onClick = {
+                                timeSetState = TimeSetState.OnSetStartTime
+                                datePickerDialog.show()
+                            }
+                        )
+                        ClickableText(
+                            text = AnnotatedString(SimpleDateFormat("HH:mm")
+                                .format(searchStartTime)),
+                            onClick = {
+                                timeSetState = TimeSetState.OnSetStartTime
                                 timePickerDialog.show()
-                            }) {
-                                Text("set start time")
                             }
-                        }
-
-                        Column(
-                            verticalArrangement = Arrangement.SpaceAround,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = SimpleDateFormat("MM/dd HH:mm:ss")
-                                    .format(searchEndTime)
-                            )
-                            Button(onClick = { /*TODO*/ }) {
-                                Text("set end time")
+                        )
+                        Text(
+                            text = "   To   "
+                        )
+                        ClickableText(
+                            text = AnnotatedString(SimpleDateFormat("yy/MM/dd ")
+                                .format(searchEndTime)),
+                            onClick = {
+                                timeSetState = TimeSetState.OnSetEndTime
+                                datePickerDialog.show()
                             }
-                        }
+                        )
+                        ClickableText(
+                            text = AnnotatedString(SimpleDateFormat("HH:mm")
+                                .format(searchEndTime)),
+                            onClick = {
+                                timeSetState = TimeSetState.OnSetEndTime
+                                timePickerDialog.show()
+                            }
+                        )
                     }
-                    // TODO: add a time chooser
                 },
                 confirmButton = {
-                    TextButton(onClick = { /*TODO*/ }) {
+                    TextButton(onClick = {
+                        val records = dbHelper.searchScoreByTime(searchStartTime, searchEndTime)
+                        viewModel.reduceRecords(records = records)
+                        viewModel.reduceSearchAlert(false)
+                    }) {
                         Text(text = "Search!")
                     }
                 },
