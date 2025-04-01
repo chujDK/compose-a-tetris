@@ -2,7 +2,7 @@
 
 为了应付安卓课的大作业，又写了一个俄罗斯方块。很幸运的是，确实学到了很多知识，~~虽然这些知识可能没什么用~~，但是还是非常的有意思。上一次写俄罗斯方块是高三的时候是在 hp-39gii 图形机上拿着简陋的 hp-basic 写的，最后写出来的结果是这样的
 
-![陪我度过高三的 hp-39gii](https://www.cjovi.icu/usr/uploads/2022/05/2726082610.jpg)
+![陪我度过高三的 hp-39gii](https://chujdk.github.io/usr/uploads/2022/05/2726082610.jpg)
 
 遗憾的是当时的源代码已经丢失了，编译后的字节码[倒还是在](https://github.com/chujDK/TETRIX-HP39GII)，重新导入回计算器还能把源码找回来，但是我已经懒得折腾这个了，属于是时代的眼泪了。
 
@@ -27,7 +27,7 @@
 
 这个架构模式满足单向数据流，整个流向如下
 
-![mvi](https://www.cjovi.icu/usr/uploads/2022/05/236817953.png)
+![mvi](https://chujdk.github.io/usr/uploads/2022/05/236817953.png)
 
 也就是说流程为：用户输入封装为 intent 发送给 ViewModel，ViewModel 根据 intent 进行 reduce 更新 state，View 根据 state 刷新 UI，再显示给用户。
 
@@ -110,7 +110,7 @@ fun BrickPreview() {
 }
 ```
 
-![single brick](https://www.cjovi.icu/usr/uploads/2022/05/4275261622.png)
+![single brick](https://chujdk.github.io/usr/uploads/2022/05/4275261622.png)
 
 效果不错。compose 的一大优点就是能够实时预览 UI 形状，效果和真机的差距也不是很大。
 
@@ -135,7 +135,7 @@ fun DrawScope.drawGrid(
 
 preview 一下效果如下
 
-![background](https://www.cjovi.icu/usr/uploads/2022/05/2784982806.png)
+![background](https://chujdk.github.io/usr/uploads/2022/05/2784982806.png)
 
 然后我们定义所有的下落方块（spirit）的形状，形状通过一个 Offset 链表描述
 
@@ -389,7 +389,7 @@ fun GameMoveController(
 
 还有一些对于分数、下一个 spirit 的绘制，这里不一一赘述了，最后的 preview 是这样
 
-![game screen](https://www.cjovi.icu/usr/uploads/2022/05/2889288616.png)
+![game screen](https://chujdk.github.io/usr/uploads/2022/05/2889288616.png)
 
 ### ViewModel
 
@@ -563,7 +563,7 @@ fun GameOverAlert() {
 
 preview 的效果如下
 
-![lost alert](https://www.cjovi.icu/usr/uploads/2022/05/504548923.png)
+![lost alert](https://chujdk.github.io/usr/uploads/2022/05/504548923.png)
 
 在 text 中组合一个 TextField 用于输入名字，用一个 mutableState 来维护名字。存储的时候，在 onClick 方法中插入数据库
 
@@ -786,7 +786,7 @@ fun ScoreItem(
 
 预览出来是这样的效果
 
-![single score item](https://www.cjovi.icu/usr/uploads/2022/05/392871297.png)
+![single score item](https://chujdk.github.io/usr/uploads/2022/05/392871297.png)
 
 嗯，看起来效果很差，主要是 Modifer.fillMaxSize 了，占满了整个屏幕，之后调用的时候会限制大小，效果还是可以的。
 
